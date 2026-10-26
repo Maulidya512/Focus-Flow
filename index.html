@@ -251,6 +251,56 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
+        // Ganti fungsi renderNotes() yang lama dengan kode ini di script kamu
+function renderNotes() {
+    const container = document.getElementById('notes-container');
+    const searchText = document.getElementById('notes-search').value.toLowerCase();
+    container.innerHTML = '';
+
+    const filtered = notesData.filter((item, index) => {
+        item.originalIndex = index; // Menyimpan nomor urut asli data
+        const matchSubject = (activeFilter === 'all') || (item.subject === activeFilter);
+        const titleText = item.title || item.term || '';
+        const matchSearch = titleText.toLowerCase().includes(searchText) || (item.content || item.def || '').toLowerCase().includes(searchText);
+        return matchSubject && matchSearch;
+    });
+
+    if (filtered.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-4">Tidak ada catatan yang ditemukan.</p>`;
+        return;
+    }
+
+    filtered.forEach((item) => {
+        const card = document.createElement('div');
+        card.className = "bg-slate-50 p-3 rounded-2xl border border-slate-100 flex flex-col justify-between";
+        const displayTitle = item.title || item.term;
+        const displayContent = item.content || item.def;
+        
+        // Di sini tombol hapus (✕) dipasang dengan membawa nomor urut data asli (item.originalIndex)
+        card.innerHTML = `
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-bold text-xs text-slate-800">${displayTitle}</span>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-[10px] bg-slate-200/80 text-slate-600 px-2 py-0.5 rounded-lg font-semibold">${item.subject}</span>
+                        <button onclick="deleteNote(${item.originalIndex})" class="text-slate-400 hover:text-rose-500 font-bold text-sm px-1" title="Hapus Catatan">✕</button>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-500 leading-relaxed">${displayContent}</p>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Dan pastikan fungsi hapus ini sudah ada di dalam script kamu:
+function deleteNote(index) {
+    if (confirm("Yakin ingin menghapus catatan ini?")) {
+        notesData.splice(index, 1); // Menghapus data dari array
+        localStorage.setItem('focusflow_notes', JSON.stringify(notesData)); // Simpan ulang ke memori
+        renderNotes(); // Refresh tampilan daftar catatan
+    }
+}
         // Database Bawaan Catatan Pelajaran SMA
         const initialNotes = [
             { title: "Konsep Anomie", subject: "Sosiologi", content: "Keadaan tanpa norma/nilai di masyarakat sehingga membingungkan individu." },
