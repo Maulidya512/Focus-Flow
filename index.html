@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Flow</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #F8FAF9;
+        }
+        
+        /* Animasi Mengambang Wadah Timer */
+        .float-animation {
+            animation: float 4s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+
+        /* SVG Progress Styling */
+        .progress-bg {
+            fill: #FFFFFF;
+            stroke: #E2E8F0;
+            stroke-width: 6;
+        }
+        .progress-bar {
+            fill: none;
+            stroke: #FFC8DD;
+            stroke-width: 6;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear, stroke 0.3s ease;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="text-slate-700 min-h-screen flex flex-col justify-between selection:bg-pink-200 selection:text-pink-800">
+
+    <!-- HEADER / NAVBAR -->
+    <header class="w-full max-w-6xl mx-auto px-6 py-5 flex justify-between items-center border-b border-slate-200/80 bg-white/50 backdrop-blur-md sticky top-0 z-30">
+        <div class="flex items-center space-x-3">
+            <span class="bg-[#FFC8DD] text-slate-800 font-bold p-2.5 rounded-2xl text-xl shadow-sm">🐱</span>
+            <div>
+                <h1 class="text-xl font-extrabold tracking-tight text-slate-800">Focus Flow</h1>
+                <p class="text-[10px] text-slate-400 font-medium">Teman Belajar & Catatan SMA</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+            <div class="bg-[#FDFD96] border border-yellow-200 px-3 py-1.5 rounded-full text-xs font-bold text-slate-700 flex items-center gap-1 shadow-sm">
+                <span>🔥 Streak:</span> <span id="streak-count">1</span> Hari
+            </div>
+            <div class="bg-[#C1E1C1] border border-emerald-200 px-3 py-1.5 rounded-full text-xs font-bold text-slate-700 flex items-center gap-1 shadow-sm">
+                <span>🌱 Kebun:</span> <span id="tree-level">Benih</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- BANNER QUOTE -->
+    <section class="max-w-6xl mx-auto px-6 pt-6 w-full">
+        <div class="bg-[#FFF5F8] border border-[#FFC8DD] p-4 rounded-2xl flex items-center justify-between shadow-sm">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl">💡</span>
+                <p id="quote-text" class="text-xs md:text-sm font-medium text-slate-600 italic">"Fokus kecil setiap hari menghasilkan pemahaman besar saat ujian nanti."</p>
+            </div>
+            <button onclick="newQuote()" class="text-xs bg-white border border-[#FFC8DD] text-slate-600 hover:bg-[#FFC8DD] px-3 py-1.5 rounded-xl font-semibold transition-all">Acak 🔄</button>
+        </div>
+    </section>
+
+    <!-- MAIN CONTENT GRID -->
+    <main class="w-full max-w-6xl mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-12 gap-8 my-auto">
+        
+        <!-- KOLOM KIRI: SHAPE TIMER KUCING (5/12) -->
+        <div class="lg:col-span-5 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-100 flex flex-col items-center justify-center text-center relative">
+            
+            <!-- Label Status -->
+            <div id="mode-label" class="bg-[#A2D2FF]/20 text-[#2B6CB0] font-bold text-xs px-4 py-1.5 rounded-full uppercase tracking-wider mb-2">
+                Waktu Fokus
+            </div>
+
+            <!-- CONTAINER SHAPE KUCING SVG -->
+            <div class="relative w-64 h-64 md:w-72 md:h-72 my-2 float-animation flex items-center justify-center">
+                <svg id="timer-svg" class="w-full h-full transform -rotate-90" viewBox="0 0 200 200">
+                    <!-- Path Kepala Kucing -->
+                    <path class="progress-bg" d="M 50,70 C 35,30 20,25 35,15 C 55,15 65,40 85,42 C 95,40 105,40 115,42 C 135,40 145,15 165,15 C 180,25 165,30 150,70 C 185,95 185,155 150,180 C 120,195 80,195 50,180 C 15,155 15,95 50,70 Z" />
+                    <!-- Hiasan Kumis Kucing -->
+                    <path d="M 20,115 L 45,118 M 18,128 L 46,126 M 155,118 L 180,115 M 154,126 L 182,128" stroke="#CBD5E1" stroke-width="2" stroke-linecap="round" />
+                    <path id="svg-progress" class="progress-bar" d="M 50,70 C 35,30 20,25 35,15 C 55,15 65,40 85,42 C 95,40 105,40 115,42 C 135,40 145,15 165,15 C 180,25 165,30 150,70 C 185,95 185,155 150,180 C 120,195 80,195 50,180 C 15,155 15,95 50,70 Z" />
+                </svg>
+
+                <!-- Teks Timer di Tengah Bentuk Kucing -->
+                <div class="absolute flex flex-col items-center justify-center inset-0 pointer-events-none">
+                    <span id="shape-icon" class="text-2xl mb-1">🐱</span>
+                    <span id="timer-display" class="text-5xl font-extrabold tracking-tighter text-slate-800">25:00</span>
+                    <span id="session-count" class="text-[11px] font-semibold text-slate-400 mt-1">Sesi #1</span>
+                </div>
+            </div>
+
+            <!-- TOMBOL KONTROL TIMER -->
+            <div class="flex space-x-3 w-full justify-center mt-3">
+                <button id="start-btn" onclick="startTimer()" class="bg-[#A2D2FF] hover:bg-[#82BDFF] text-slate-800 px-7 py-3 rounded-2xl font-bold shadow-md shadow-blue-100 transition-all active:scale-95">Mulai 🚀</button>
+                <button id="pause-btn" onclick="pauseTimer()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-6 py-3 rounded-2xl font-bold transition-all active:scale-95">Jeda</button>
+                <button onclick="resetTimer()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-3 rounded-2xl font-bold transition-all active:scale-95" title="Reset">🔄</button>
+            </div>
+
+            <!-- PRESET WAKTU -->
+            <div class="flex space-x-2 mt-4 text-xs">
+                <button onclick="setMode(25, 'Waktu Fokus')" class="bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-xl text-blue-700 font-semibold">25m Fokus</button>
+                <button onclick="setMode(5, 'Istirahat Singkat')" class="bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-xl text-emerald-700 font-semibold">5m Istirahat</button>
+                <button onclick="setMode(15, 'Istirahat Panjang')" class="bg-purple-50 hover:bg-purple-100 px-3 py-1.5 rounded-xl text-purple-700 font-semibold">15m Istirahat</button>
+            </div>
+        </div>
+
+        <!-- KOLOM KANAN: TO-DO LIST & CATATAN SMA (7/12) -->
+        <div class="lg:col-span-7 flex flex-col space-y-6">
+            
+            <!-- STATISTIK MINI -->
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 text-center shadow-sm">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Total Menit</p>
+                    <p id="stat-minutes" class="text-xl font-extrabold text-slate-800">0</p>
+                </div>
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 text-center shadow-sm">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Sesi Fokus</p>
+                    <p id="stat-sessions" class="text-xl font-extrabold text-slate-800">0</p>
+                </div>
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 text-center shadow-sm">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Tugas Selesai</p>
+                    <p id="stat-tasks" class="text-xl font-extrabold text-slate-800">0</p>
+                </div>
+            </div>
+
+            <!-- TO-DO LIST -->
+            <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-100">
+                <h2 class="text-sm font-bold text-slate-800 mb-3 flex items-center justify-between">
+                    <span>📝 Target Tugas Hari Ini</span>
+                    <span id="task-count-label" class="text-[11px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-lg">0 Selesai</span>
+                </h2>
+                
+                <div class="flex space-x-2 mb-3">
+                    <input type="text" id="task-input" placeholder="Tulis tugas sekolah di sini..." class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm text-slate-700 focus:outline-none focus:border-[#A2D2FF]">
+                    <button onclick="addTask()" class="bg-[#FFC8DD] hover:bg-[#ffb3d1] text-slate-800 px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-sm">+</button>
+                </div>
+
+                <ul id="task-list" class="space-y-2 max-h-36 overflow-y-auto pr-1">
+                    <!-- Item tugas dirender JavaScript -->
+                </ul>
+            </div>
+
+            <!-- MODUL CATATAN PELAJARAN SMA -->
+            <div class="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-100 flex-1 flex flex-col">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                        <span>📚 Catatan Pelajaran SMA</span>
+                    </h2>
+                    <button onclick="openModal()" class="bg-[#C1E1C1] hover:bg-[#a8dba8] text-slate-800 text-xs font-bold px-3 py-1.5 rounded-xl transition-all shadow-sm">
+                        + Tambah Catatan
+                    </button>
+                </div>
+
+                <!-- Input Cari & Filter Mapel SMA -->
+                <div class="space-y-2 mb-3">
+                    <input type="text" id="notes-search" oninput="filterNotes()" placeholder="🔍 Cari judul catatan atau isi materi..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs text-slate-700 focus:outline-none focus:border-[#A2D2FF]">
+                    
+                    <div class="flex flex-wrap gap-1.5 text-[11px]">
+                        <button onclick="setFilter('all')" class="filter-btn bg-slate-800 text-white px-2.5 py-1 rounded-lg font-semibold">Semua</button>
+                        <button onclick="setFilter('Sosiologi')" class="filter-btn bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-semibold hover:bg-slate-200">Sosiologi</button>
+                        <button onclick="setFilter('Ekonomi')" class="filter-btn bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-semibold hover:bg-slate-200">Ekonomi</button>
+                        <button onclick="setFilter('Geografi')" class="filter-btn bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-semibold hover:bg-slate-200">Geografi</button>
+                        <button onclick="setFilter('Fisika')" class="filter-btn bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-semibold hover:bg-slate-200">Fisika</button>
+                        <button onclick="setFilter('Kimia')" class="filter-btn bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-semibold hover:bg-slate-200">Kimia</button>
+                        <button onclick="setFilter('Biologi')" class="filter-btn bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-semibold hover:bg-slate-200">Biologi</button>
+                        <button onclick="setFilter('TIK')" class="filter-btn bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-semibold hover:bg-slate-200">TIK</button>
+                        <button onclick="setFilter('MTK')" class="filter-btn bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-semibold hover:bg-slate-200">MTK</button>
+                        <button onclick="setFilter('MTK TL')" class="filter-btn bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-semibold hover:bg-slate-200">MTK TL</button>
+                        <button onclick="setFilter('PKN')" class="filter-btn bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-semibold hover:bg-slate-200">PKN</button>
+                        <button onclick="setFilter('Sejarah')" class="filter-btn bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-semibold hover:bg-slate-200">Sejarah</button>
+                    </div>
+                </div>
+
+                <!-- Daftar Catatan -->
+                <div id="notes-container" class="space-y-2.5 max-h-60 overflow-y-auto pr-1 flex-1">
+                    <!-- Item Catatan dirender JavaScript -->
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- MODAL POPUP: TAMBAH CATATAN BARU -->
+    <div id="notes-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white w-full max-w-md p-6 rounded-3xl shadow-2xl border border-slate-100 animate-in fade-in duration-200">
+            <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center justify-between">
+                <span>✨ Tambah Catatan Baru</span>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-sm">✕</button>
+            </h3>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Judul Catatan / Materi:</label>
+                    <input type="text" id="new-title" placeholder="Misal: Rangkuman Enzim, Rumus Inflasi, Algoritma..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#A2D2FF]">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Mata Pelajaran SMA:</label>
+                    <select id="new-subject" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#A2D2FF]">
+                        <option value="Sosiologi">Sosiologi (IPS)</option>
+                        <option value="Ekonomi">Ekonomi (IPS)</option>
+                        <option value="Geografi">Geografi (IPS)</option>
+                        <option value="Fisika">Fisika (IPA)</option>
+                        <option value="Kimia">Kimia (IPA)</option>
+                        <option value="Biologi">Biologi (IPA)</option>
+                        <option value="TIK">TIK</option>
+                        <option value="MTK">Matematika (MTK)</option>
+                        <option value="MTK TL">Matematika Tingkat Lanjut (MTK TL)</option>
+                        <option value="PKN">PKN</option>
+                        <option value="Sejarah">Sejarah</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Isi Catatan / Ringkasan:</label>
+                    <textarea id="new-content" rows="3" placeholder="Tuliskan ringkasan materi atau poin penting di sini..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#A2D2FF]"></textarea>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-2 mt-5">
+                <button onclick="closeModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl">Batal</button>
+                <button onclick="saveNewNote()" class="px-5 py-2 bg-[#A2D2FF] hover:bg-[#82BDFF] text-slate-800 text-xs font-bold rounded-xl shadow-sm">Simpan Catatan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="w-full text-center py-5 text-xs text-slate-400 border-t border-slate-200/80 mt-6">
+        Focus Flow • Dibuat untuk Portofolio TIK SMA
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Database Bawaan Catatan Pelajaran SMA
+        const initialNotes = [
+            { title: "Konsep Anomie", subject: "Sosiologi", content: "Keadaan tanpa norma/nilai di masyarakat sehingga membingungkan individu." },
+            { title: "Pengertian Inflasi", subject: "Ekonomi", content: "Proses kenaikan harga-harga barang secara umum dan terus menerus." },
+            { title: "Lapisan Litosfer", subject: "Geografi", content: "Lapisan batuan luar yang membentuk kerak bumi." },
+            { title: "Hukum Newton II", subject: "Fisika", content: "Percepatan benda berbanding lurus dengan gaya total dan berbanding terbalik dengan massa." },
+            { title: "Konsentrasi Molaritas", subject: "Kimia", content: "Satuan konsentrasi larutan yang menyatakan jumlah mol zat terlarut per liter larutan." },
+            { title: "Pembelahan Mitosis", subject: "Biologi", content: "Pembelahan sel menghasilkan dua sel anak identik dengan kromosom diploid." },
+            { title: "Pengertian Algoritma", subject: "TIK", content: "Urutan langkah-langkah logis dan sistematis untuk menyelesaikan masalah." },
+            { term: "Konsep Diferensial", subject: "MTK", content: "Tingkat perubahan suatu fungsi terhadap variabel bebasnya (turunan)." },
+            { title: "Suku Banyak (Polinomial)", subject: "MTK TL", content: "Bentuk suku banyak dengan koefisien dan variabel berpangkat bulat positif." },
+            { title: "Konstitusi Negara", subject: "PKN", content: "Hukum dasar tertulis maupun tidak tertulis yang mengatur penyelenggarakan negara." },
+            { title: "Historiografi Sejarah", subject: "Sejarah", content: "Kajian tentang metode penulisan sejarah dari masa ke masa." }
+        ];
+
+        let notesData = JSON.parse(localStorage.getItem('focusflow_notes')) || initialNotes;
+        let activeFilter = 'all';
+
+        function renderNotes() {
+            const container = document.getElementById('notes-container');
+            const searchText = document.getElementById('notes-search').value.toLowerCase();
+            container.innerHTML = '';
+
+            const filtered = notesData.filter(item => {
+                const matchSubject = (activeFilter === 'all') || (item.subject === activeFilter);
+                const titleText = item.title || item.term || '';
+                const matchSearch = titleText.toLowerCase().includes(searchText) || (item.content || item.def || '').toLowerCase().includes(searchText);
+                return matchSubject && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-4">Tidak ada catatan yang ditemukan.</p>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 p-3 rounded-2xl border border-slate-100 flex flex-col justify-between";
+                const displayTitle = item.title || item.term;
+                const displayContent = item.content || item.def;
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-bold text-xs text-slate-800">${displayTitle}</span>
+                            <span class="text-[10px] bg-slate-200/80 text-slate-600 px-2 py-0.5 rounded-lg font-semibold">${item.subject}</span>
+                        </div>
+                        <p class="text-xs text-slate-500 leading-relaxed">${displayContent}</p>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function setFilter(subj) {
+            activeFilter = subj;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-800', 'text-white');
+                btn.classList.add('bg-slate-100', 'text-slate-600');
+            });
+            event.target.classList.remove('bg-slate-100', 'text-slate-600');
+            event.target.classList.add('bg-slate-800', 'text-white');
+            renderNotes();
+        }
+
+        function filterNotes() {
+            renderNotes();
+        }
+
+        // Modal Functionality
+        function openModal() {
+            document.getElementById('notes-modal').classList.remove('hidden');
+            document.getElementById('notes-modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('notes-modal').classList.add('hidden');
+            document.getElementById('notes-modal').classList.remove('flex');
+        }
+
+        function saveNewNote() {
+            const title = document.getElementById('new-title').value.trim();
+            const subject = document.getElementById('new-subject').value;
+            const content = document.getElementById('new-content').value.trim();
+
+            if (!title || !content) {
+                alert('Harap isi judul catatan dan isinya!');
+                return;
+            }
+
+            notesData.unshift({ title, subject, content });
+            localStorage.setItem('focusflow_notes', JSON.stringify(notesData));
+            
+            document.getElementById('new-title').value = '';
+            document.getElementById('new-content').value = '';
+            closeModal();
+            renderNotes();
+        }
+
+        // TIMER & PROGRESS LOGIC
+        let duration = 25 * 60;
+        let timeLeft = duration;
+        let timerId = null;
+        let isRunning = false;
+        let completedSessions = 0;
+        let totalMinutesStudied = 0;
+
+        const svgProgress = document.getElementById('svg-progress');
+        const totalPathLength = svgProgress.getTotalLength();
+        svgProgress.style.strokeDasharray = totalPathLength;
+
+        function updateDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer-display').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Update SVG Progress
+            const fraction = timeLeft / duration;
+            svgProgress.style.strokeDashoffset = totalPathLength * (1 - fraction);
+        }
+
+        function startTimer() {
+            if (isRunning) return;
+            isRunning = true;
+            document.getElementById('start-btn').classList.add('opacity-75');
+
+            timerId = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateDisplay();
+                } else {
+                    clearInterval(timerId);
+                    isRunning = false;
+                    document.getElementById('start-btn').classList.remove('opacity-75');
+
+                    completedSessions++;
+                    totalMinutesStudied += Math.round(duration / 60);
+                    updateStats();
+                    alert('🎉 Sesi selesai! Waktunya istirahat atau menambah catatan.');
+                    resetTimer();
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(timerId);
+            isRunning = false;
+            document.getElementById('start-btn').classList.remove('opacity-75');
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timeLeft = duration;
+            updateDisplay();
+        }
+
+        function setMode(mins, label) {
+            pauseTimer();
+            duration = mins * 60;
+            timeLeft = duration;
+            document.getElementById('mode-label').textContent = label;
+            updateDisplay();
+        }
+
+        function updateStats() {
+            document.getElementById('stat-sessions').textContent = completedSessions;
+            document.getElementById('stat-minutes').textContent = totalMinutesStudied;
+            document.getElementById('session-count').textContent = `Sesi #${completedSessions + 1}`;
+            
+            const treeLabel = document.getElementById('tree-level');
+            if (completedSessions >= 5) treeLabel.textContent = "🌳 Pohon Rindang";
+            else if (completedSessions >= 3) treeLabel.textContent = "🌻 Bunga Mekar";
+            else if (completedSessions >= 1) treeLabel.textContent = "🌱 Kecambah";
+        }
+
+        // Quotes Generator
+        const quotes = [
+            "Fokus kecil setiap hari menghasilkan pemahaman besar saat ujian nanti.",
+            "Satu materi dipahami hari ini, satu poin berharga untuk masa depanmu.",
+            "Jangan hanya membaca, catat dan uji ingatanmu secara konsisten.",
+            "Istirahatlah ketika lelah, tapi jangan menyerah pada mimpimu!"
+        ];
+        function newQuote() {
+            const random = quotes[Math.floor(Math.random() * quotes.length)];
+            document.getElementById('quote-text').textContent = `"${random}"`;
+        }
+
+        // To-Do List Logic
+        let tasks = [];
+        function addTask() {
+            const input = document.getElementById('task-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            tasks.push({ text, completed: false });
+            input.value = '';
+            renderTasks();
+        }
+
+        function toggleTask(i) {
+            tasks[i].completed = !tasks[i].completed;
+            renderTasks();
+        }
+
+        function deleteTask(i) {
+            tasks.splice(i, 1);
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const list = document.getElementById('task-list');
+            list.innerHTML = '';
+            let completedCount = 0;
+
+            tasks.forEach((task, i) => {
+                if (task.completed) completedCount++;
+                const li = document.createElement('li');
+                li.className = "flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs";
+                li.innerHTML = `
+                    <div class="flex items-center space-x-2 cursor-pointer" onclick="toggleTask(${i})">
+                        <input type="checkbox" ${task.completed ? 'checked' : ''} class="rounded text-[#A2D2FF]">
+                        <span class="${task.completed ? 'line-through text-slate-400' : 'text-slate-700 font-medium'}">${task.text}</span>
+                    </div>
+                    <button onclick="deleteTask(${i})" class="text-slate-400 hover:text-rose-500">✕</button>
+                `;
+                list.appendChild(li);
+            });
+
+            document.getElementById('task-count-label').textContent = `${completedCount} Selesai`;
+            document.getElementById('stat-tasks').textContent = completedCount;
+        }
+
+        // Inisialisasi awal saat halaman dimuat
+        window.onload = function() {
+            updateDisplay();
+            renderNotes();
+        };
+    </script>
+</body>
+</html>
